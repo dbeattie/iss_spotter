@@ -1,7 +1,7 @@
 const request = require('request');
 
 // const url = "https://api.ipify.org?format=json";
-// THIS IS THE OLD FUNCTION 
+// THIS IS THE OLD FUNCTION
 // const fetchMyIP = function(callback) {
 //   // use request to fetch users IP address from JSON API
 //   request(url, (error, response, body) => {
@@ -22,23 +22,43 @@ const request = require('request');
 //   });
 // };
 
-const fetchCoordsByIP = function(ip, callback) {
-  request(`https://ipvigilante.com/json/${ip}`, (error, response, body) => {
-    //Makes a single API request to retrieve the lat/lng for a given IPv4 address.
+// const fetchCoordsByIP = function(ip, callback) {
+//   request(`https://ipvigilante.com/json/${ip}`, (error, response, body) => {
+//     //Makes a single API request to retrieve the lat/lng for a given IPv4 address.
+//     if (error) {
+//       callback(error, null);
+//       return;
+//     }
+//     //That ip (ipv4) address string is checked as a callback for error check
+//     if (response.statusCode !== 200) {
+//       callback(Error(`Status Code ${response.statusCode} when fetching Coordinates for IP: ${body}`), null);
+//       return;
+//     }
+//     //this doublechecks to see if a 200 code is present, throws error if it isn't
+//     const { latitude, longitude } = JSON.parse(body).data;
+//     //this is actually doing what we want to do, check null against latitude/longitude
+//     callback(null, { latitude, longitude });
+//   });
+// };
+
+const fetchISSFlyOverTimes = function(coords, callback) {
+  const url = `http://api.open-notify.org/iss-pass.json?lat=${coords.latitude}&lon=${coords.longitude}`;
+  //http://api.open-notify.org/iss-pass.json?lat=45.0&lon=-122.3 -- didn't need this: (&alt=20&n=5&callback=?)
+  //check for basic error first and compare to null
+  request(url, (error, response, body) => {
     if (error) {
       callback(error, null);
       return;
     }
-    //That ip (ipv4) address string is checked as a callback for error check
+    //That api address string is checked as an error check callback and compared to null
     if (response.statusCode !== 200) {
-      callback(Error(`Status Code ${response.statusCode} when fetching Coordinates for IP: ${body}`), null);
+      callback(Error(`Status Code ${response.statusCode} when fetching ISS pass times: ${body}`), null);
       return;
     }
-    //this doublechecks to see if a 200 code is present, throws error if it isn't
-    const { latitude, longitude } = JSON.parse(body).data;
-    //this is actually doing what we want to do, check null against latitude/longitude
-    callback(null, { latitude, longitude });
+    //parse to give us passTimes and duration of those passTimes
+    const passTimes = JSON.parse(body).response;
+    callback(null, passTimes);
   });
 };
 
-module.exports = { fetchCoordsByIP };
+module.exports = { fetchISSFlyOverTimes };
