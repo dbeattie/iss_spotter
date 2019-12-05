@@ -36,6 +36,7 @@ const fetchCoordsByIP = function(ip, callback) {
   });
 };
 
+//GETS THE ISS FLYOVER TIMES OF DURATION AND RISETIME
 const fetchISSFlyOverTimes = function(coords, callback) {
   const url1 = `http://api.open-notify.org/iss-pass.json?lat=${coords.latitude}&lon=${coords.longitude}`;
   request(url1, (error, response, body) => {
@@ -53,5 +54,32 @@ const fetchISSFlyOverTimes = function(coords, callback) {
   });
 };
 
+//CALLS ON ALL USING CALLBACKS TO index3.js
+const nextISSTimesForMyLocation = function(callback) {
+  //FIRST FUNCTION CALL
+  fetchMyIP((error, ip) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    //NESTED CALLBACK #2
+    fetchCoordsByIP(ip, (error, loc) => {
+      if (error) {
+        callback(error, null);
+        return;
+      }
+      //NESTED CALLBACK #3
+      fetchISSFlyOverTimes(loc, (error, nextPassTimes) => {
+        if (error) {
+          callback(error, null);
+          return; 
+        }
+        //FINAL CALLBACK
+        callback(null, nextPassTimes);
+      });
+    });
+  });
+};
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes, nextISSTimesForMyLocation };
