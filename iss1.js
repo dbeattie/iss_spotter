@@ -1,14 +1,8 @@
 const request = require('request');
 
 const url = "https://api.ipify.org?format=json";
-/**
- * Makes a single API request to retrieve the user's IP address.
- * Input:
- *   - A callback (to pass back an error or the IP string)
- * Returns (via Callback):
- *   - An error, if any (nullable)
- *   - The IP address as a string (null if error). Example: "162.245.144.188"
- */
+
+//GETS COMPUTER'S IP ADDDRESS
 const fetchMyIP = function(callback) { 
   request(url, (error, response, body) => {
     if (error) {
@@ -24,4 +18,20 @@ const fetchMyIP = function(callback) {
   });
 };
 
-module.exports = { fetchMyIP };
+//GETS COMPUTER'S LOCATION COORDINATES BASED ON THE IP ADDRESS
+const fetchCoordsByIP = function(ip, callback) { 
+  request (`https://ipvigilante.com/json/${ip}`, (error, response, body) => {
+    if (error) {
+      return callback(error, null)
+    }
+
+    if (response.statusCode !== 200) {
+      const msg1 = `Status code ${response.statusCode} when fetching coordinates of IP. Response: ${body}`
+      return callbackk(Error(msg1), null);
+    }
+    const { latitude, longitude } = JSON.parse(body).data;
+    callback(null, { latitude, longitude});
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
