@@ -1,4 +1,4 @@
-const { nextISSTimesForMyLocation } = require ('./iss_promised2');
+const { nextISSTimesForMyLocation } = require('./iss_promised2');
 
 const printPassTimes = function(passTimes) {
   for (const pass of passTimes) {
